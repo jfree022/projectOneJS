@@ -8,7 +8,6 @@
 </head>
 <body>
     <script>
-    console.log("test test test");
 
     class Invoice {
         constructor () {
@@ -22,6 +21,16 @@
                 province: ""
             }
         }
+
+        update() { //helper function to update estimates
+            let newEstimate = 0;
+            this.items.forEach((items) =>{
+               newEstimate = newEstimate + items.price*items.count; 
+            });
+            this.estimate = newEstimate;
+            this.estimateWithTax = Math.round(newEstimate*1.13*100)/100;
+        }
+
         findItem(itemName) { //iterates through array and returns matching item name
             //need to add checks???
             for (let i = 0; i < this.items.length; i++) {
@@ -31,6 +40,7 @@
             }
             return -1;
         }
+        
         addItem(userItem,userPrice,userCount) {
             // should remember to put a bunch of checks here
             const item = {
@@ -63,6 +73,8 @@
     console.log(`${testInvoice.findItem("another")}`);
     console.log(`${testInvoice.findItem("nothing")}`);
     console.log(`${testInvoice.removeItem("nothing")}`);
+    console.log(testInvoice);
+    testInvoice.update();
     console.log(testInvoice);
 
     </script>
