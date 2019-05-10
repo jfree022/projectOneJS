@@ -22,11 +22,49 @@
                 province: ""
             }
         }
-        
+        findItem(itemName) { //iterates through array and returns matching item name
+            //need to add checks???
+            for (let i = 0; i < this.items.length; i++) {
+                if (this.items[i].itemKey == itemName) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        addItem(userItem,userPrice,userCount) {
+            // should remember to put a bunch of checks here
+            const item = {
+                item: userItem,
+                itemKey: userItem,
+                price: userPrice,
+                count: userCount
+            }
+            this.items.push(item);
+        }
 
+        removeItem(itemName) {//if item is found, then remove item and return true, else returns false
+            const index = this.findItem(itemName);
+            console.log(index);
+            if (index > -1) {
+                this.items.splice(index,1);
+                console.log(this.items);
+            } else {
+                return false;
+            }
+        }
     }
 
     const testInvoice = new Invoice();
+    console.log(testInvoice);
+    testInvoice.addItem("something",9.99,22);
+    console.log(testInvoice);
+    testInvoice.addItem("another",15.25,99);
+    console.log(testInvoice);
+    console.log(`${testInvoice.findItem("another")}`);
+    console.log(`${testInvoice.findItem("nothing")}`);
+    console.log(`${testInvoice.removeItem("nothing")}`);
+    console.log(testInvoice);
+
     </script>
 </body>
 </html>
