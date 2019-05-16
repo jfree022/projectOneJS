@@ -32,7 +32,7 @@
             <input class="" type="button" id="newInvoice" value="new">
     </form>
 
-    <div>
+    <div class=displayInvoice>
         <p>Invoice Number: 0</p>
     </div>
 
@@ -90,7 +90,7 @@
                 this.customerInfo.province = province.trim();
             }
 
-            findItem(itemName) { //iterates through array and returns matching item name
+            findItem(itemName) { //iterates through array and returns matching item name index
                 const searchItem = itemName.toLowerCase().replace(/ /g,''); //convert itemName into key format for searching
                 for (let i = 0; i < this.items.length; i++) {
                     if (this.items[i].itemKey == searchItem) {
@@ -153,8 +153,10 @@
             decrementItem(itemName){ //decrement item count by 1
                 const index = this.findItem(itemName);
                 if (index > -1) {
-                    this.items[index].count--;
-                    this.update();
+                    if (this.items[index].count >0){
+                        this.items[index].count--;
+                        this.update();
+                    }
                     return true;
                 } else {
                     return false;
@@ -206,7 +208,7 @@
                 invoices[currentInvoice].items.forEach((product) => {
                     const todo = `
                     <li id=${product.itemKey}>
-                        <span class="check todo"></span>${product.item} $${product.price} count: ${product.count}
+                        <span class=""></span>${product.item} $${product.price} count: ${product.count}
                         <span class="fas fa-plus-square"></span>
                         <span class="fas fa-minus-square"></span>
                         <span class="fas fa-trash"></span>
@@ -215,8 +217,10 @@
                 });
 
                 $(".displayEstimate").empty();
-                $(".displayEstimate").append(`<p>Estimate: ${invoices[currentInvoice].estimate}</p>`);
-
+                    $(".displayEstimate").append(`
+                        <p>Estimate: ${invoices[currentInvoice].estimate}</p>
+                        <p>Estimate with Tax: ${invoices[currentInvoice].estimateWithTax}</p>`
+                    );
             });
             
             //create a console log for "Update" button
@@ -254,12 +258,49 @@
                 if ($("#load").val() < invoices.length) {
                     currentInvoice = $("#load").val();
                     console.log(currentInvoice);
-                } else {
-                    console.log("Nothing loaded")
-                }
-                //render customer information
-                //render list
-                //render estimate
+                    //render customer information
+                    $(".displayCustomerInfo").empty();
+                    const customerDisplayInfo = `
+                    <p> Customer Information: </p>
+                    <p>NAME: ${invoices[currentInvoice].customerInfo.name}</p>
+                    <p>CITY: ${invoices[currentInvoice].customerInfo.city}</p>
+                    <p>ADDRESS: ${invoices[currentInvoice].customerInfo.address}</p>
+                    <p>PROVINCE: ${invoices[currentInvoice].customerInfo.province}</p>`;
+
+                    $(".displayCustomerInfo").append(customerDisplayInfo);
+                    
+                    //render list
+                    $('ul').empty();
+                    invoices[currentInvoice].items.forEach((product) => {
+                        const todo = `
+                        <li id=${product.itemKey}>
+                            <span class=""></span>${product.item} $${product.price} count: ${product.count}
+                            <span class="fas fa-plus-square"></span>
+                            <span class="fas fa-minus-square"></span>
+                            <span class="fas fa-trash"></span>
+                        </li>`;
+                        $('ul').append(todo);
+                    });
+
+                    //render estimate
+
+                    $(".displayEstimate").empty();
+                    $(".displayEstimate").append(`
+                        <p>Estimate: ${invoices[currentInvoice].estimate}</p>
+                        <p>Estimate with Tax: ${invoices[currentInvoice].estimateWithTax}</p>`
+                    );
+
+                    //update invoice number
+                    $(".displayInvoice").empty();
+                    $(".displayInvoice").append(
+                        `<p>Invoice Number: ${invoices[currentInvoice].invoiceNumber}</p>`
+                    );
+                    
+                    $("#load").val("");
+
+                    } else {
+                        console.log("Nothing loaded")
+                    }
             });
 
             //create a console log for "New" button
@@ -269,28 +310,90 @@
                     invoices.push(new Invoice());
                     currentInvoice = invoices.length - 1;
                     invoices[currentInvoice].invoiceNumber = currentInvoice;
-                    console.log("NEW INVOICE GENERATED")
+                    console.log("NEW INVOICE GENERATED");
+
+                    $(".displayCustomerInfo").empty();
+
+                    const customerDisplayInfo = `
+                    <p> Customer Information: </p>
+                    <p>NAME: </p>
+                    <p>CITY: </p>
+                    <p>ADDRESS: </p>
+                    <p>PROVINCE: </p>`;
+
+                    $(".displayCustomerInfo").append(customerDisplayInfo);
+
+                    $(".displayEstimate").empty();
+                    $(".displayEstimate").append(`<p>Estimate: 0</p>`);
+
+                    $('ul').empty();
+
+                    $("#load").val("");
+
+                    $(".displayInvoice").empty();
+                    $(".displayInvoice").append(
+                        `<p>Invoice Number: ${invoices[currentInvoice].invoiceNumber}</p>`
+                    );
                 } else {
                     console.log("CURRENT INVOICE IS EMPTY");
                 }
-
-                //generate a new invoice
-
-                //update invoice number
-                //render everything as blank
             })  
             
             //create something that removes the item competely
             $('ul').on('click','.fa-trash', function(event){
                 event.stopPropagation();//this stops the event from propagating to the top, which is ul. Needed this to avoid adding the completed or triggering the toggle
-                console.log($(this).parent('li')); //this will return the first li while bubbling up. the first parent li
+                // console.log($(this).parent('li')); //this will return the first li while bubbling up. the first parent li
                 invoices[currentInvoice].removeItem($(this).parent('li')[0].id) //returns the id which is also the itemKey
                 $(this).parent('li').remove(); // Remove li element
+
+                $(".displayEstimate").empty();
+                $(".displayEstimate").append(`<p>Estimate: ${invoices[currentInvoice].estimate}</p>`);
             });
 
-
             //increment the count by one
+            $('ul').on('click','.fa-plus-square', function(event){
+                event.stopPropagation();//this stops the event from propagating to the top, which is ul. Needed this to avoid adding the completed or triggering the toggle
+                // console.log($(this).parent('li')); //this will return the first li while bubbling up. the first parent li
+                invoices[currentInvoice].incrementItem($(this).parent('li')[0].id)//increment by itemKey
+                const itemIndex = invoices[currentInvoice].findItem($(this).parent('li')[0].id);
+                const itemID= $(this).parent('li')[0].id
+                console.log($(this).parent('li'));
+                $(this).parent('li').empty();
+                const updatedItem =
+                    `<span class=""></span>${invoices[currentInvoice].items[itemIndex].item} $${invoices[currentInvoice].items[itemIndex].price} count: ${invoices[currentInvoice].items[itemIndex].count}
+                    <span class="fas fa-plus-square"></span>
+                    <span class="fas fa-minus-square"></span>
+                    <span class="fas fa-trash"></span>`;
+                $(`#${itemID}`).append(updatedItem);
+
+                $(".displayEstimate").empty();
+                $(".displayEstimate").append(`
+                    <p>Estimate: ${invoices[currentInvoice].estimate}</p>
+                    <p>Estimate with Tax: ${invoices[currentInvoice].estimateWithTax}</p>`
+                );
+            });
+
             //decrement the count by one
+            $('ul').on('click','.fa-minus-square', function(event){
+                event.stopPropagation();//this stops the event from propagating to the top, which is ul. Needed this to avoid adding the completed or triggering the toggle
+                // console.log($(this).parent('li')); //this will return the first li while bubbling up. the first parent li
+                invoices[currentInvoice].decrementItem($(this).parent('li')[0].id)//increment by itemKey
+                const itemIndex = invoices[currentInvoice].findItem($(this).parent('li')[0].id);
+                const itemID= $(this).parent('li')[0].id
+                console.log($(this).parent('li'));
+                $(this).parent('li').empty();
+                const updatedItem =
+                    `<span class=""></span>${invoices[currentInvoice].items[itemIndex].item} $${invoices[currentInvoice].items[itemIndex].price} count: ${invoices[currentInvoice].items[itemIndex].count}
+                    <span class="fas fa-plus-square"></span>
+                    <span class="fas fa-minus-square"></span>
+                    <span class="fas fa-trash"></span>`;
+                $(`#${itemID}`).append(updatedItem);
+                $(".displayEstimate").empty();
+                $(".displayEstimate").append(`
+                    <p>Estimate: ${invoices[currentInvoice].estimate}</p>
+                    <p>Estimate with Tax: ${invoices[currentInvoice].estimateWithTax}</p>`
+                );
+            });
         });
 
     </script>
