@@ -132,7 +132,7 @@
                 console.log(index);
                 if (index > -1) {
                     this.items.splice(index,1);
-                    console.log(this.items);
+                    this.update();
                     return true;
                 } else {
                     return false;
@@ -143,6 +143,7 @@
                 const index = this.findItem(itemName);
                 if (index > -1) {
                     this.items[index].count++;
+                    this.update();
                     return true;
                 } else {
                     return false;
@@ -153,6 +154,7 @@
                 const index = this.findItem(itemName);
                 if (index > -1) {
                     this.items[index].count--;
+                    this.update();
                     return true;
                 } else {
                     return false;
@@ -203,7 +205,7 @@
                 $('ul').empty();
                 invoices[currentInvoice].items.forEach((product) => {
                     const todo = `
-                    <li>
+                    <li id=${product.itemKey}>
                         <span class="check todo"></span>${product.item} $${product.price} count: ${product.count}
                         <span class="fas fa-plus-square"></span>
                         <span class="fas fa-minus-square"></span>
@@ -279,6 +281,14 @@
             })  
             
             //create something that removes the item competely
+            $('ul').on('click','.fa-trash', function(event){
+                event.stopPropagation();//this stops the event from propagating to the top, which is ul. Needed this to avoid adding the completed or triggering the toggle
+                console.log($(this).parent('li')); //this will return the first li while bubbling up. the first parent li
+                invoices[currentInvoice].removeItem($(this).parent('li')[0].id) //returns the id which is also the itemKey
+                $(this).parent('li').remove(); // Remove li element
+            });
+
+
             //increment the count by one
             //decrement the count by one
         });
