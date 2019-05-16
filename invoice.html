@@ -4,78 +4,284 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Invoice</title>
 </head>
 <body>
+
+    <h1>Invoicing System</h1>
+    <form class="submitItem">
+        <label for="item">Add a product:</label>
+        <input class="" type="text" id="item" placeholder="Item">
+        <input class="" type="text" id="price" placeholder="Price">
+        <input class="" type="text" id="count" placeholder="Count">
+        <input type="submit" value="Add Item">
+    </form>
+
+    <form class="submitCustomerInfo">
+        <label for="customerInfo">Add your client information:</label>
+        <input class="" type="text" id="name" placeholder="Name">
+        <input class="" type="text" id="address" placeholder="Address">
+        <input class="" type="text" id="city" placeholder="City">
+        <input class="" type="text" id="province" placeholder="Province">
+        <input type="submit" value="Update">
+    </form>
+
+    <form class="submitInvoice">
+            <input class="" type="text" id="load" placeholder="Load Invoice Number">
+            <input type="submit" value="load">
+            <input class="" type="button" id="newInvoice" value="new">
+    </form>
+
+    <div>
+        <p>Invoice Number: 0</p>
+    </div>
+
+    <div class="displayCustomerInfo">
+        <p>Customer Information: 0</p>
+    </div>
+
+    <div class="displayEstimate">
+        <p>Estimate: 0</p>
+    </div>
+        
+    <ul>
+        <!-- Put all the products here!! -->
+    </ul>
+    
+    <style>
+        body {
+            background: lightblue;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <!-- <script src="invoiceClass.js"></script>
+    <script src="invoiceSystem.js"></script> -->
+
     <script>
-
-    class Invoice {
-        constructor () {
-            this.items = [];
-            this.estimate = 0;
-            this.estimateWithTax = 0;
-            this.customerInfo = {
-                name: "",
-                address: "",
-                city: "",
-                province: ""
-            }
-        }
-
-        update() { //helper function to update estimates
-            let newEstimate = 0;
-            this.items.forEach((items) =>{
-               newEstimate = newEstimate + items.price*items.count; 
-            });
-            this.estimate = newEstimate;
-            this.estimateWithTax = Math.round(newEstimate*1.13*100)/100;
-        }
-
-        findItem(itemName) { //iterates through array and returns matching item name
-            //need to add checks???
-            for (let i = 0; i < this.items.length; i++) {
-                if (this.items[i].itemKey == itemName) {
-                    return i;
+        class Invoice { //invoice object, need to put into separate file later
+            constructor () {
+                this.items = [];
+                this.estimate = 0;
+                this.estimateWithTax = 0;
+                this.invoiceNumber = -1;
+                this.customerInfo = {
+                    name: "",
+                    address: "",
+                    city: "",
+                    province: ""
                 }
             }
-            return -1;
+            
+            update() { //helper function to update estimates, usually run after adding or removing items
+                let newEstimate = 0;
+                this.items.forEach((items) =>{
+                newEstimate = newEstimate + items.price*items.count; 
+                });
+                this.estimate = newEstimate;
+                this.estimateWithTax = Math.round(newEstimate*1.13*100)/100;
+            }
+
+            updateCustomerInfo(name,address,city,province) {
+                this.customerInfo.name = name.trim();
+                this.customerInfo.address = address.trim();
+                this.customerInfo.city = city.trim();
+                this.customerInfo.province = province.trim();
+            }
+
+            findItem(itemName) { //iterates through array and returns matching item name
+                const searchItem = itemName.toLowerCase().replace(/ /g,''); //convert itemName into key format for searching
+                for (let i = 0; i < this.items.length; i++) {
+                    if (this.items[i].itemKey == searchItem) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
+            isEmpty() { //returns true if there are no items and customer information is empty.
+                let numContent = 0;
+                for (let info in this.customerInfo) {
+                    numContent = numContent + this.customerInfo[info].length;
+                }
+                if ((numContent + this.items.length) != 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+
+            }
+
+            addItem(userItem,userPrice,userCount) { //adds items to the invoice, including the name, price and desired count
+                // should remember to put a bunch of checks here
+                let userItemKey = userItem.toLowerCase().replace(/ /g,''); //remove all whitespace and letter case
+                userItem = userItem.trim(); //remove surrounding whitespace
+                const item = {
+                    item: userItem,
+                    itemKey: userItemKey,
+                    price: userPrice,
+                    count: userCount
+                }
+                this.items.push(item);
+                this.update();
+            }
+
+            removeItem(itemName) { //if item is found, then remove item and return true, else returns false
+                const index = this.findItem(itemName);
+                console.log(index);
+                if (index > -1) {
+                    this.items.splice(index,1);
+                    console.log(this.items);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            incrementItem(itemName){ //increment item count by 1
+                const index = this.findItem(itemName);
+                if (index > -1) {
+                    this.items[index].count++;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            decrementItem(itemName){ //decrement item count by 1
+                const index = this.findItem(itemName);
+                if (index > -1) {
+                    this.items[index].count--;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
+
+        const testInvoice = new Invoice();
+        console.log(testInvoice);
+        testInvoice.addItem("something",9.99,22);
+        console.log(testInvoice);
+        testInvoice.addItem("another",15.25,99);
+        testInvoice.addItem("whhhattt",5.99,33);
+        console.log(testInvoice);
+        console.log(`${testInvoice.findItem("another")}`);
+        console.log(`${testInvoice.findItem("nothing")}`);
+        console.log(`${testInvoice.removeItem("nothing")}`);
+        // testInvoice.removeItem("whhhattt");
+        console.log(testInvoice);  
+        console.log(testInvoice.isEmpty());
+        testInvoice.decrementItem("something");
+        testInvoice.incrementItem("another");
         
-        addItem(userItem,userPrice,userCount) {
-            // should remember to put a bunch of checks here
-            const item = {
-                item: userItem,
-                itemKey: userItem,
-                price: userPrice,
-                count: userCount
-            }
-            this.items.push(item);
-        }
+        //start using invoice for the page
+        const invoices =[]; //hold all of our invoices, the index will be the invoice number
+        invoices[0] = new Invoice(); //generate first default invoice
+        invoices[0].invoiceNumber = 0;
+        let currentInvoice = 0; //our current invoice number
 
-        removeItem(itemName) {//if item is found, then remove item and return true, else returns false
-            const index = this.findItem(itemName);
-            console.log(index);
-            if (index > -1) {
-                this.items.splice(index,1);
-                console.log(this.items);
-            } else {
-                return false;
-            }
-        }
-    }
 
-    const testInvoice = new Invoice();
-    console.log(testInvoice);
-    testInvoice.addItem("something",9.99,22);
-    console.log(testInvoice);
-    testInvoice.addItem("another",15.25,99);
-    console.log(testInvoice);
-    console.log(`${testInvoice.findItem("another")}`);
-    console.log(`${testInvoice.findItem("nothing")}`);
-    console.log(`${testInvoice.removeItem("nothing")}`);
-    console.log(testInvoice);
-    testInvoice.update();
-    console.log(testInvoice);
+        //js for page interactions
+        $(function(){
+
+            //create a console log for "Add Item" button
+            $('.submitItem').on('submit', function(event) { 
+                event.preventDefault();
+                console.log("ADD ITEM");
+
+                invoices[currentInvoice].addItem($("#item").val(), parseFloat($("#price").val()), parseFloat($("#count").val()));
+                console.log(invoices[currentInvoice]);
+
+                //clear fields out
+                $("#item").val("");
+                $("#price").val("");
+                $("#count").val("");
+
+                //render what they entered
+                $('ul').empty();
+                invoices[currentInvoice].items.forEach((product) => {
+                    const todo = `
+                    <li>
+                        <span class="check todo"></span>${product.item} $${product.price} count: ${product.count}
+                        <span class="fas fa-plus-square"></span>
+                        <span class="fas fa-minus-square"></span>
+                        <span class="fas fa-trash"></span>
+                    </li>`;
+                    $('ul').append(todo);
+                });
+
+                $(".displayEstimate").empty();
+                $(".displayEstimate").append(`<p>Estimate: ${invoices[currentInvoice].estimate}</p>`);
+
+            });
+            
+            //create a console log for "Update" button
+            $('.submitCustomerInfo').on('submit', function(event){
+                event.preventDefault();
+                console.log("UPDATE");
+                //collect customer information and update invoice
+                invoices[currentInvoice].updateCustomerInfo($("#name").val(), $("#address").val(), $("#city").val(), $("#province").val());
+                console.log(invoices[currentInvoice])
+
+                //clear out fields
+                $("#name").val("");
+                $("#address").val("");
+                $("#city").val("");
+                $("#province").val("");
+                //render the customer information
+
+                $(".displayCustomerInfo").empty();
+
+                const customerDisplayInfo = `
+                <p> Customer Information: </p>
+                <p>NAME: ${invoices[currentInvoice].customerInfo.name}</p>
+                <p>CITY: ${invoices[currentInvoice].customerInfo.city}</p>
+                <p>ADDRESS: ${invoices[currentInvoice].customerInfo.address}</p>
+                <p>PROVINCE: ${invoices[currentInvoice].customerInfo.province}</p>`;
+
+                $(".displayCustomerInfo").append(customerDisplayInfo);
+            });
+
+            //creare a console log for "Load" button
+            $('.submitInvoice').on('submit',function(event){
+                event.preventDefault();
+                console.log("LOAD");
+                //search for the invoice number
+                if ($("#load").val() < invoices.length) {
+                    currentInvoice = $("#load").val();
+                    console.log(currentInvoice);
+                } else {
+                    console.log("Nothing loaded")
+                }
+                //render customer information
+                //render list
+                //render estimate
+            });
+
+            //create a console log for "New" button
+            $('#newInvoice').on('click',function(event) {
+                console.log("NEW");
+                if (!invoices[currentInvoice].isEmpty()) {
+                    invoices.push(new Invoice());
+                    currentInvoice = invoices.length - 1;
+                    invoices[currentInvoice].invoiceNumber = currentInvoice;
+                    console.log("NEW INVOICE GENERATED")
+                } else {
+                    console.log("CURRENT INVOICE IS EMPTY");
+                }
+
+                //generate a new invoice
+
+                //update invoice number
+                //render everything as blank
+            })  
+            
+            //create something that removes the item competely
+            //increment the count by one
+            //decrement the count by one
+        });
 
     </script>
 </body>

@@ -14,7 +14,7 @@
 <body>
 
     <h1>Invoicing System</h1>
-        <form>
+        <form class="addItem">
             <label for="item">Add a product:</label>
             <input class="" type="text" id="item" placeholder="Item">
             <input class="" type="text" id="price" placeholder="Price">
@@ -41,43 +41,43 @@
 
         $('form').on('submit', function(event) {
        
-        event.preventDefault();
-        console.log("clicked submit!!!!!");    
+            event.preventDefault();
+            console.log("clicked submit!!!!!");    
 
-        // we want to grab the data
-        // const input = $('input[type=submit]');
-        const inputItem = $("#item");
-        const inputPrice = $("#price");
-        // then used the .val() method to get the value in there
+            // we want to grab the data
+            // const input = $('input[type=submit]');
+            const inputItem = $("#item");
+            const inputPrice = $("#price");
+            // then used the .val() method to get the value in there
 
-        // console.log(input);
-        // console.log(input[0].value);
-        // const userValue = input.val();
-        const userItem = inputItem.val();
-        const userPrice = inputPrice.val();
-        // Using the .val menu, we can also Set a value. So we pass an empty string to clear out the input
-        inputItem.val(""); //this removes the value inside input variable
-        inputPrice.val("");
-        // user a termplate literal to clear our markup
+            // console.log(input);
+            // console.log(input[0].value);
+            // const userValue = input.val();
+            const userItem = inputItem.val();
+            const userPrice = inputPrice.val();
+            // Using the .val menu, we can also Set a value. So we pass an empty string to clear out the input
+            inputItem.val(""); //this removes the value inside input variable
+            inputPrice.val("");
+            // user a termplate literal to clear our markup
 
-        // console.log(userValue);
+            // console.log(userValue);
 
-        // if statement to make sure user is not submitting blank or string
-        // with spaces at the beginning and end of the string/input
-        if ((userItem.trim().length > 0) && (userPrice.trim().length > 0)) {
-            const todo = `
-            <li>
-                <span class="check todo"></span>${userItem} $${userPrice}
-                <span class="fas fa-plus-square"></span>
-                <span class="fas fa-minus-square"></span>
-                <span class="fas fa-trash"></span>
-            </li>`;
-            console.log(todo);
-            // select the ul of container that we want to put it in
-            // and use the append method to add to that element
-            $('ul').append(todo);
-        }
-    });
+            // if statement to make sure user is not submitting blank or string
+            // with spaces at the beginning and end of the string/input
+            if ((userItem.trim().length > 0) && (userPrice.trim().length > 0)) {
+                const todo = `
+                <li>
+                    <span class="check todo"></span>${userItem} $${userPrice}
+                    <span class="fas fa-plus-square"></span>
+                    <span class="fas fa-minus-square"></span>
+                    <span class="fas fa-trash"></span>
+                </li>`;
+                console.log(todo);
+                // select the ul of container that we want to put it in
+                // and use the append method to add to that element
+                $('ul').append(todo);
+            }
+        });
     
     // psuedo code for myself to figure out what to do for this project
     // create constructor for a invoice object
